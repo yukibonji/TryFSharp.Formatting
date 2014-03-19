@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>FSharp.Formattingを試す
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trying to use FSharp.Formatting">
+    <meta name="author" content="yukitos">
+
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="file://C:\work\github\TryFSharp.Formatting\output/content/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+        </ul>
+        <h3 class="muted"><a href="file://C:\work\github\TryFSharp.Formatting\output/index.html">Trying to use FSharp.Formatting</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1>FSharp.Formattingを試す</h1>
+
+<p><a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> はTomas Petricek氏によって開発されている
+F#製のドキュメント生成ツールです。</p>
+
+<p>このツールを使うと、既存のコードにコメントを追加するだけで
+コードを含んだ形のドキュメントを生成することができます。
+<a href="http://www.doxygen.org/index.html" title="doxygen">doxygen</a> や <a href="http://shfb.codeplex.com/" title="Sandcastle Help File Builder">Sandcastle Help File Builder</a>といった類のツールと同じ役割を果たすものだといえます。</p>
+
+<p>F#界隈のコミュニティでは <a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> と
+<a href="http://fsharp.github.io/FAKE/" title="FAKE">FAKE</a> の組み合わせでよく使用されている感じがしますが、
+今回は <a href="http://fsharp.github.io/FAKE/" title="FAKE">FAKE</a> ではなくMSBuildでドキュメントを生成させてみようと思っています。</p>
+
+<p>ドキュメント生成には最低限以下のファイル/ディレクトリが関連します：</p>
+
+<ul>
+<li>.nuget/
+<ul>
+<li>NuGet.Config</li>
+<li>NuGet.exe</li>
+<li>NuGet.targets</li>
+</ul></li>
+<li>contents/</li>
+<li>docs/</li>
+<li>templates/
+<ul>
+<li>template.cshtml</li>
+</ul></li>
+<li>build.proj</li>
+<li>generate.fsx</li>
+<li>packages.config</li>
+</ul>
+
+<h2>ファイルとディレクトリの概要</h2>
+
+<h3>.nuget</h3>
+
+<p>.nugetディレクトリはVisual Studio上でソリューションを設定して、
+NuGetパッケージの復元を有効化した際に生成されるものと全く同じものです。</p>
+
+<h3>contents</h3>
+
+<p>contentsディレクトリにはドキュメントに付随する追加ファイルを置く予定です。</p>
+
+<h3>docs</h3>
+
+<p>docsディレクトリにはドキュメント生成の対象になるファイル( <code>*.md</code>, <code>*.fsx</code> )を置きます。
+ちなみに拡張子 <code>.fs</code> のファイルは対象に <strong>ならない</strong> ので注意が必要です。</p>
+
+<h3>templates</h3>
+
+<p>templatesディレクトリにはすべてのドキュメントで共通して使用されるテンプレートファイルを置きます。
+テンプレートファイルはRazor記法で記述します。</p>
+
+<h3>build.proj</h3>
+
+<p>MSBuildのターゲットとなるXMLファイルです。</p>
+
+<h3>generate.fsx</h3>
+
+<p><a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> を使ってドキュメントを生成するコードが書かれたF# スクリプトファイルです。
+プロジェクト毎、言語毎に用意されることになります。</p>
+
+<h3>packages.config</h3>
+
+<p>NuGetを使って<a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> とその関連パッケージを取得/復元するためのファイルです。</p>
+
+<h2>その他のディレクトリ</h2>
+
+<h3>output</h3>
+
+<p>生成されたドキュメントファイルが置かれます。</p>
+
+<h3>packages</h3>
+
+<p>NuGetで取得した<a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> および関連パッケージが配置されます。</p>
+
+<h2>build.projの作成</h2>
+
+<p>まずMSBuildのターゲットファイルを作成します。
+このファイルがサポートするビルドターゲットは以下の通りとします：</p>
+
+<ul>
+<li>Build (デフォルト)</li>
+<li>Clean</li>
+<li>Rebuild</li>
+</ul>
+
+<p>その他にも補助的なターゲットを用意しますが、基本的には上の3つだけが使われることになる予定です。</p>
+
+<p>ファイルの内容は <a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/build.proj" title="build.proj">GitHub上</a> で参照してください。</p>
+
+<p>MSBuildはPropertyGroup要素やItemGroup要素の下に任意の名前のプロパティやアイテムを定義できるので、
+プロジェクトのディレクトリ構成に沿って設定することになります。</p>
+
+<p><code>$(MSBuildThisFileDirectory)</code> はこのファイルが置かれたディレクトリを指すプロパティです。
+その他の既知のプロパティについては <a href="http://msdn.microsoft.com/ja-jp/library/ms164309.aspx" title="MSBuildの予約済みおよび既知のプロパティ">MSDN</a> を参照してください。</p>
+
+<p>デフォルトのビルドターゲットは <code>&lt;Project&gt;</code>ノードの <code>DefaultTargets</code> 属性で指定しています。
+ターゲットを複数指定する場合は <code>;</code> でターゲット名を区切ります。</p>
+
+<p><code>Build</code> で行いたいことは要約すると以下の通りです：</p>
+
+<ul>
+<li>NuGetを使って関連パッケージを取得する</li>
+<li>ビルド用のfsxファイルを <code>fsi.exe</code> で実行してドキュメントを生成する</li>
+</ul>
+
+<p>また <code>Clean</code> では単に生成されたドキュメントをフォルダごと削除、
+<code>Rebuild</code> では <code>Clean</code> した後に <code>Build</code> するだけです。</p>
+
+<h3>NuGetでのパッケージ取得</h3>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="i">nuget</span><span class="o">.</span><span class="i">exe</span> <span class="i">restore</span> <span class="i">packages</span><span class="o">.</span><span class="i">config</span> <span class="o">-</span><span class="i">PackagesDirectory</span> <span class="i">packages</span></pre>
+</td>
+</tr>
+</table>
+
+<p>というコマンドを実行して、<a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/packages.config" title="packages.config">packages.config</a> に書かれたパッケージを <code>packages</code> ディレクトリに配置するだけです。
+<a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/packages.config" title="packages.config">packages.configの中</a> では今のところ <a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> とその依存パッケージだけを列挙してあります。</p>
+
+<h3>ドキュメント生成スクリプトの実行</h3>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">fsi</span><span class="o">.</span><span class="i">exe</span> <span class="o">--</span><span class="i">exec</span> <span class="i">generate</span><span class="o">.</span><span class="i">fsx</span></pre>
+</td>
+</tr>
+</table>
+
+<p>実際のところはこれだけです。
+スクリプト <code>generate.fsx</code> の中で定数定義で条件分岐させている都合上、実際には以下のように <code>--define</code> も指定します：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="i">fsi</span><span class="o">.</span><span class="i">exe</span> <span class="o">--</span><span class="i">exec</span> <span class="o">--</span><span class="i">define</span><span class="o">:</span><span class="o">$</span>(<span class="i">Configuration</span>) <span class="i">generate</span><span class="o">.</span><span class="i">fsx</span></pre>
+</td>
+</tr>
+</table>
+
+<p><code>$(Configuration)</code> はファイルの上の方で以下のように定義しています：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="o">&lt;</span><span class="i">Configuration</span> <span class="i">Condition</span><span class="o">=</span><span class="s">&quot;</span><span class="s"> </span><span class="s">&#39;</span><span class="s">$</span><span class="s">(</span><span class="s">Configuration</span><span class="s">)</span><span class="s">&#39;</span><span class="s"> </span><span class="s">=</span><span class="s">=</span><span class="s"> </span><span class="s">&#39;</span><span class="s">&#39;</span><span class="s"> </span><span class="s">&quot;</span><span class="o">&gt;</span><span class="i">RELEASE</span><span class="o">&lt;/</span><span class="i">Configuration</span><span class="o">&gt;</span></pre>
+</td>
+</tr>
+</table>
+
+<p>MSBuildでは実行時に任意のプロパティを指定できるわけなので、
+ここでは <code>Configuration</code> にまだ値が設定されていなければ値を <code>RELEASE</code> に設定しています。</p>
+
+<p>なので、この定義は以下のようにしてMSBuildが実行されるとスキップされます：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="i">MSBuild</span><span class="o">.</span><span class="i">exe</span> <span class="i">build</span><span class="o">.</span><span class="i">proj</span> <span class="o">/</span><span class="i">p</span><span class="o">:</span><span class="i">Configuration</span><span class="o">=</span><span class="i">DEBUG</span></pre>
+</td>
+</tr>
+</table>
+
+<h2>ドキュメント生成スクリプト</h2>
+
+<p><a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/generate.fsx" title="generate.fsx"><code>generate.fsx</code></a> の内容は <a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> のREADMEでも言及されていますが、
+<a href="https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docs/tools/generate.fsx" title="FSharp.ProjectScaffoldのgenerate.fsx">FSharp.ProjectScaffoldのgenerate.fsx</a> とほぼ同じです。</p>
+
+<p>処理の中心は <a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/generate.fsx#L46-L48" title="Literate.ProcessDirectory">Literate.ProcessDirectoryを呼び出す</a> ところです。
+この関数を呼び出すときに、引数 <code>replacements</code> で指定した値ペアがテンプレート内から参照できるようになっているようです。</p>
+
+<h2>テンプレートファイル</h2>
+
+<p><a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/templates/template.cshtml#L24" title="RenderBody()">テンプレートファイル</a> で最低限必要なのは <a href="https://github.com/yukitos/TryFSharp.Formatting/blob/master/templates/template.cshtml#L24" title="RenderBody()"><code>RenderBody</code>の呼び出し</a> です。
+たぶん。</p>
+
+<p>また、先ほどビルドスクリプト中で <code>replacements</code> に指定した値は <code>@Properties['名前']</code> の形式で参照できます。</p>
+
+<h2>ビルドの実行</h2>
+
+<p>Visual Studio開発者用コンソールを起動した後、作業ディレクトリで以下のコマンドを実行するだけです：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="i">MSBuild</span><span class="o">.</span><span class="i">exe</span> <span class="i">build</span><span class="o">.</span><span class="i">proj</span></pre>
+</td>
+</tr>
+</table>
+
+<p>ドキュメントを強制的に再作成したい場合には <code>Rebuild</code> ターゲットを指定します：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="i">MSBuild</span><span class="o">.</span><span class="i">exe</span> <span class="i">build</span><span class="o">.</span><span class="i">proj</span> <span class="o">/</span><span class="i">t</span><span class="o">:</span><span class="i">Rebuild</span></pre>
+</td>
+</tr>
+</table>
+
+<p>生成されたドキュメントを削除する場合は <code>Clean</code> ターゲットを指定します：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="i">MSBuild</span><span class="o">.</span><span class="i">exe</span> <span class="i">build</span><span class="o">.</span><span class="i">proj</span> <span class="o">/</span><span class="i">t</span><span class="o">:</span><span class="i">Clean</span></pre>
+</td>
+</tr>
+</table>
+
+<p>生成されたドキュメントをローカルでチェックしたい場合には <code>Configuration</code> の値を変更します：</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="i">MSBuild</span><span class="o">.</span><span class="i">exe</span> <span class="i">build</span><span class="o">.</span><span class="i">proj</span> <span class="o">/</span><span class="i">p</span><span class="o">:</span><span class="i">Configuration</span><span class="o">=</span><span class="i">DEBUG</span></pre>
+</td>
+</tr>
+</table>
+
+<blockquote>
+  <p>実際は <code>RELEASE</code> 以外の値であれば何でもいいです。</p>
+</blockquote>
+
+<h2>終わりに</h2>
+
+<p><a href="http://tpetricek.github.io/FSharp.Formatting/" title="FSharp.Formatting">FSharp.Formatting</a> はF#のコードとともに組み合わせることで
+力を発揮するわけですが、今回はその説明まではできませんでした。。。</p>
+
+<p>後、fsx内で特別な形式のコメント( <code>omit</code> とか <code>hide</code> とか <code>include</code> とか <code>define</code> とか)を埋め込むと
+コードを隠したり、後方にあるコードをドキュメントの前のほうで表示させたり出来るんですが、
+その話についてはまたの機会に。</p>
+
+<div class="tip" id="fs1">val fsi : Compiler.Interactive.InteractiveSession<br /><br />Full name: Microsoft.FSharp.Compiler.Interactive.Settings.fsi</div>
+
+        </div>
+        <div class="span3">
+          <a href="file://C:\work\github\TryFSharp.Formatting\output/index.html">
+            <!--<img src="file://C:\work\github\TryFSharp.Formatting\output/images/logo.png" style="width:99px;height:55px;margin:10px 0px 0px 35px;border-style:none;" />-->
+          </a>
+
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">Trying to use FSharp.Formatting</li>
+            <li class="divider"></li>
+            <li><a href="https://github.com/yukitos/TryFSharp.Formatting">GitHub上のソースコード</a></li>
+
+            <!--
+            <li class="nav-header">Tutorials</li>
+            -->
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/yukitos/TryFSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>
