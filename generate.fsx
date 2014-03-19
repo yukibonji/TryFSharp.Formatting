@@ -25,7 +25,7 @@ let (@@) path1 path2 =
 #if RELEASE
 let root = website
 #else
-let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
+let root = "file://" + (__SOURCE_DIRECTORY__ @@ "output")
 #endif
 
 let content     = __SOURCE_DIRECTORY__ @@ "docs"
