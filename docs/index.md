@@ -1,6 +1,6 @@
 # FSharp.Formattingを試す
 
-[FSharp.Formatting][link01] はTomas Petricek氏らによって開発されている
+[FSharp.Formatting][link01] はTomas Petricek氏によって開発されている
 F#製のドキュメント生成ツールです。
 
 このツールを使うと、既存のコードにコメントを追加するだけで
@@ -113,7 +113,7 @@ MSBuildはPropertyGroup要素やItemGroup要素の下に任意の名前のプロ
 実際のところはこれだけです。
 スクリプト `generate.fsx` の中で定数定義で条件分岐させている都合上、実際には以下のように ``--define`` も指定します：
 
-    fsi.exe --exec --define:$(Configuration) generate.fsx
+    fsi.exe --define:$(Configuration) --exec generate.fsx
 
 `$(Configuration)` はファイルの上の方で以下のように定義しています：
 
