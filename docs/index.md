@@ -1,6 +1,6 @@
 # FSharp.Formattingを試す
 
-[FSharp.Formatting][link01] はTomas Petricek氏によって開発されている
+[FSharp.Formatting][link01] はTomas Petricek氏らによって開発されている
 F#製のドキュメント生成ツールです。
 
 このツールを使うと、既存のコードにコメントを追加するだけで
