@@ -5,9 +5,9 @@ let info =
     "project-summary", "Trying to use FSharp.Formatting"
     "project-github", "https://github.com/yukitos/TryFSharp.Formatting"]
 
-#I "packages/FSharp.Formatting.2.4.1/lib/net40"
+#I "packages/FSharp.Formatting.2.4.17/lib/net40"
 #I "packages/RazorEngine.3.3.0/lib/net40"
-#I "packages/FSharp.Compiler.Service.0.0.36/lib/net40"
+#I "packages/FSharp.Compiler.Service.0.0.57/lib/net40"
 
 #r "RazorEngine.dll"
 #r "FSharp.Compiler.Service.dll"
@@ -31,7 +31,7 @@ let root = "file://" + (__SOURCE_DIRECTORY__ @@ "output")
 let content     = __SOURCE_DIRECTORY__ @@ "docs"
 let output      = __SOURCE_DIRECTORY__ @@ "output"
 let templates   = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting  = __SOURCE_DIRECTORY__ @@ "packages/FSharp.Formatting.2.4.1/"
+let formatting  = __SOURCE_DIRECTORY__ @@ "packages/FSharp.Formatting.2.4.17/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 let layoutRoots =

@@ -1,3 +1,4 @@
+(**
 # FSharp.Formattingを試す
 
 [FSharp.Formatting][link01] はTomas Petricek氏によって開発されている
@@ -161,12 +162,19 @@ Visual Studio開発者用コンソールを起動した後、作業ディレク�
 
 > 実際は `RELEASE` 以外の値であれば何でもいいです。
 
-## 続く？
+## F# スクリプトファイル
 
-fsx内で特別な形式のコメント( `omit` とか `hide` とか `include` とか `define` とか)を埋め込むと
+F# スクリプトファイル(*.fsx) 内で <span><code>(\*\*\*</code></span> から始まって
+<span><code>\*\*\*)</code></span> で終了する1行コメントには
+[FSharp.Formatting][link01] のコマンドを指定することができます。
+
+サポートされている特別な形式のコメント
+( `omit` とか `hide` とか `include` とか `define` とか)を埋め込むと
 コードを隠したり、後方にあるコードをドキュメントの前のほうで表示させたり出来るんですが、
 その話については後で更新したりしなかったりします。
+*)
 
+(**
 [link01]: http://tpetricek.github.io/FSharp.Formatting/ "FSharp.Formatting"
 [link02]: http://www.doxygen.org/index.html "doxygen"
 [link03]: http://shfb.codeplex.com/ "Sandcastle Help File Builder"
@@ -178,3 +186,4 @@ fsx内で特別な形式のコメント( `omit` とか `hide` とか `include` �
 [link09]: https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docs/tools/generate.fsx "FSharp.ProjectScaffoldのgenerate.fsx"
 [link10]: https://github.com/yukitos/TryFSharp.Formatting/blob/master/generate.fsx#L46-L48 "Literate.ProcessDirectory"
 [link11]: https://github.com/yukitos/TryFSharp.Formatting/blob/master/templates/template.cshtml#L24 "RenderBody()"
+*)
